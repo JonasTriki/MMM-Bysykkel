@@ -29,7 +29,20 @@ Module.register("MMM-Bysykkel", {
 
 	getDom: function() {
 		const container = document.createElement("div");
-		container.innerHTML = this.translate("LOADING");
+		container.className = "container";
+		if (!this.data) {
+
+			const top = document.createElement("div");
+			top.className = "top";
+
+			const logo = document.createElement("img");
+			logo.src = "img/bysykkel-bergen.svg";
+			top.appendChild(logo);
+
+			container.appendChild(top);
+		} else {
+			container.innerHTML = this.translate("LOADING");
+		}
 		return container;
 	},
 

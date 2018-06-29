@@ -1,3 +1,17 @@
-body {
-  background-color: #cccccc;
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.container > div {
+  height: 100%;
+  width: 100%;
+}
+
+.top {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
