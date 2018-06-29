@@ -1,17 +1,51 @@
-.container {
+.wrapper {
+  color: white;
   width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: row;
+  padding: 1em;
+  flex-direction: column;
 }
 
-.container > div {
+.wrapper > div {
   height: 100%;
   width: 100%;
 }
 
-.top {
+.wrapper .top {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.wrapper .bottom {
+  display: flex;
+  flex-direction: row;
+  margin-top: 1.5em;
+}
+
+.wrapper .bottom > div {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.wrapper .bottom > div > div {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.wrapper .bottom > div > div img {
+  height: 50px;
+  margin-right: .25em;
+}
+
+.big {
+  font-size: 1.75em;
+}
+
+.bold {
+  font-weight: bold;
 }
