@@ -30,9 +30,9 @@ npm install
 Add the module to the modules array in the `config/config.js` file by adding the following section. You can change this configuration later when you see this works:
 ```
 {
-	module: 'MMM-Bysykkel',
-	header: 'Bysykkel',
-	position: 'top_left',
+	module: "MMM-Bysykkel",
+	header: "Bysykkel",
+	position: "top_left",
 	config: {
 		TODO
 	}
