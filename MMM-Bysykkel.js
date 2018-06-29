@@ -49,7 +49,7 @@ Module.register("MMM-Bysykkel", {
 			bottom.className = "bottom";
 
 			const from = this.createInfoSection("bike", 3, 25, "Cornerteateret");
-			const eta = this.createEtaSection("~10 minutes");
+			const eta = this.createEtaSection("~10 min");
 			const to = this.createInfoSection("lock-open", 12, 25, "Klostertet");
 
 			bottom.appendChild(from);

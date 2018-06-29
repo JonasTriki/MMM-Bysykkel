@@ -3,7 +3,7 @@ MagicMirror² module for showing the availability of the city bikes around in No
 
 This module is inspired by the [MMM-OsloCityBike](https://github.com/TobbenTM/MMM-OsloCityBike) module from TobbenTM.
 
-![Screenshot](TODO) <!-- images/screenshot.png -->
+![Screenshot](img/screenshot.png)
 
 ## Installation
 
