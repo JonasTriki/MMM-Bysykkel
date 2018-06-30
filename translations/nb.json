@@ -1,3 +1,4 @@
 {
-  "LOADING": "Laster &hellip;"
+  "LOADING": "Laster &hellip;",
+  "CITY_ERROR": "Feil ved innlasting av by; se etter skrivefeil?"
 }

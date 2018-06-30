@@ -3,7 +3,10 @@
 Module.register("MMM-Bysykkel", {
 
 	defaults: {
-		updateInterval: 1000	// How often we would call the API's in milliseconds. (Default 15 seconds)
+		updateInterval: 15000,	// How often we would call the API's in milliseconds. (Default 15 seconds)
+		city: "bergen", // What city we're looking in.
+		fromStationId: 34, // Desired starting station identifier; used to tell which station we're starting from.
+		toStationId: 212 // Desired end station identifier; used to tell which station we're heading towards.
 	},
 
 	getStyles: function () {
@@ -23,7 +26,7 @@ Module.register("MMM-Bysykkel", {
 		const self = this;
 		this.requestData();
 
-		setInterval(function() {
+		this.timer = setInterval(function() {
 			self.requestData();
 		}, this.config.updateInterval);
 	},
@@ -32,7 +35,7 @@ Module.register("MMM-Bysykkel", {
 		const wrapper = document.createElement("div");
 		wrapper.className = "wrapper";
 
-		if (!this.fetchedData) {
+		if (this.fetchedData) {
 
 			// Top section w/logo
 			const top = document.createElement("div");
@@ -48,9 +51,19 @@ Module.register("MMM-Bysykkel", {
 			const bottom = document.createElement("div");
 			bottom.className = "bottom";
 
-			const from = this.createInfoSection("bike", 3, 25, "Cornerteateret");
-			const eta = this.createEtaSection("~10 min");
-			const to = this.createInfoSection("lock-open", 12, 25, "Klostertet");
+			const from = this.createInfoSection(
+				"bike",
+				this.fetchedData.from.available,
+				this.fetchedData.from.total,
+				this.fetchedData.from.name
+			);
+			const eta = this.createEtaSection(this.formatTime(this.fetchedData.eta));
+			const to = this.createInfoSection(
+				"lock-open",
+				this.fetchedData.to.available,
+				this.fetchedData.to.total,
+				this.fetchedData.to.name
+			);
 
 			bottom.appendChild(from);
 			bottom.appendChild(eta);
@@ -111,24 +124,32 @@ Module.register("MMM-Bysykkel", {
 		return "/modules/MMM-Bysykkel/img/" + name + ".svg";
 	},
 
-	/*getImagesPath: function(cb) {
-		const req = new XMLHttpRequest();
-		const self = this;
-		req.open("GET", "/MMM-Bysykkel/images", true);
-
-		req.onreadystatechange = function() {
-			if (this.readyState === 4) {
-				if (this.status === 200) {
-					console.log(this);
-					cb(this.response);
-				}
-			}
-		};
-		req.send();
-	},*/
+	formatTime: function(time) {
+		return "~" + time + " min"; // TODO: actual formatting. time = seconds.
+	},
 
 	requestData: function() {
 		console.log(this.translate("LOADING") + ": " + this.name);
+		const self = this;
 
+		this.queryData(this.config.city, this.config.fromStationId, this.config.toStationId);
+	},
+
+	socketNotificationReceived: function(notification, payload) {
+		if (notification === "DATA_FETCHED") {
+			this.fetchedData = payload;
+			this.updateDom();
+		} else if (notification === "CITY_ERROR") {
+			clearInterval(this.timer);
+			console.log(this.translate("CITY_ERROR"));
+		}
+	},
+
+	queryData: function(city, from, to) {
+		this.sendSocketNotification("FETCH_DATA", {
+			city: city,
+			from: from,
+			to: to
+		});
 	}
 });

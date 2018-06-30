@@ -1,3 +1,4 @@
 {
-  "LOADING": "Loading &hellip;"
+  "LOADING": "Loading &hellip;",
+  "CITY_ERROR": "Error loading city; check for typos?"
 }

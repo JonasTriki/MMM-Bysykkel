@@ -1,33 +1,47 @@
 const express = require("express");
 const NodeHelper = require("node_helper");
-const request = require("request");
 const path = require("path");
+
+const cityBergen = require("./cities/bergen");
+const cityOslo = require("./cities/oslo");
+const cityTrondheim = require("./cities/trondheim");
 
 module.exports = NodeHelper.create({
 
 	// Override start method.
 	start: function() {
 		console.log("Starting node helper for: " + this.name);
-		this.setConfig();
-		this.extraRoutes();
-	},
+  },
 
-	setConfig: function() {
-    this.imgPath = path.resolve(global.root_path + "modules" + path.sep + "MMM-Bysykkel" + path.sep + "img" + path.sep) + path.sep;
-	},
+  socketNotificationReceived: function (notification, payload) {
+    if (notification === "FETCH_DATA") {
+      this.fetchData(payload); 
+    }
+  },
 
-	extraRoutes: function() {
+  fetchData: function(payload) {
     const self = this;
-    this.expressApp.get("/MMM-Bysykkel/images", function(req, res) {
-      res.send(self.imgPath);
+    const city = this.getCity(payload.city);
+    if (city === null) {
+      this.sendSocketNotification("CITY_ERROR", "Could not find city!");
+      return;
+    }
+
+    city.fetchData(payload.from, payload.to, function(data) {
+      self.sendSocketNotification("DATA_FETCHED", data);
     });
   },
-  
-  getFiles: function(path) {
-		return fs.readdirSync(path).filter(function (file) {
-			if (! fs.statSync(path + "/" + file).isDirectory() ) {
-				return file;
-			}
-		});
-	},
+
+  getCity: function(city) {
+    switch (city) {
+      case "bergen":
+        return cityBergen;
+      case "oslo":
+        return cityOslo;
+      case "trondheim":
+        return cityTrondheim;
+      default:
+        return null;
+    }
+  }
 });
