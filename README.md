@@ -71,3 +71,7 @@ en (English) | Jonas Triki
 nb (Norwegian) | Jonas Triki
 
 If you wish to contribute, please make a pull request.
+
+# Current development status
+
+This module is currently being maintained, weyy! 🎉
