@@ -44,7 +44,7 @@ Configuration option | Comment | Default
 ---|---|---
 updateInterval | Refresh rate in MS for how often we call the API's. Don't set this too low, most of the data refreshes every 10s anyway. | 30000
 osloBysykkelId | Client identifier for Oslo Bysykkel. [Click here to create new](https://developer.oslobysykkel.no/clients/new). Required if city === "oslo". | ""
-googleMapsApiKey | [Google Maps API Key](https://developers.google.com/maps/documentation/javascript/get-api-key) for calculating the time between the city bike stops. | Required if you want estimated time between stations
+googleMapsApiKey | [Google Maps API Key](https://developers.google.com/maps/documentation/javascript/get-api-key) for calculating the time between the city bike stops. Required if you want estimated time between stations. | ""
 city | What city we're biking in. | "bergen"
 fromStationId |  Desired starting station identifier; used to tell which station we're starting from. | 3
 toStationId | Desired end station identifier; used to tell which station we're heading towards. | 5
