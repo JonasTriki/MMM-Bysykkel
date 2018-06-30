@@ -2,15 +2,15 @@ const express = require("express");
 const NodeHelper = require("node_helper");
 const path = require("path");
 
-const cityBergen = require("./cities/bergen");
 const cityOslo = require("./cities/oslo");
-const cityTrondheim = require("./cities/trondheim");
+const cityBergen = require("./cities/bergen").create(); // Important to call create!
+const cityTrondheim = require("./cities/trondheim").create();
 
 module.exports = NodeHelper.create({
 
 	// Override start method.
 	start: function() {
-		console.log("Starting node helper for: " + this.name);
+    console.log("Starting node helper for: " + this.name);
   },
 
   socketNotificationReceived: function (notification, payload) {
@@ -34,10 +34,10 @@ module.exports = NodeHelper.create({
 
   getCity: function(city) {
     switch (city) {
-      case "bergen":
-        return cityBergen;
       case "oslo":
         return cityOslo;
+      case "bergen":
+        return cityBergen;
       case "trondheim":
         return cityTrondheim;
       default:

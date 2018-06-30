@@ -1,7 +1,7 @@
 const request = require("request");
 
 const directionsUrl = function(from, to, language, key) {
-  //              Bergen   ||        Oslo
+  //         Bergen/Trondheim   ||    Oslo
   const fromLat = from.lat || from.center.latitude;
   const fromLng = from.lon || from.center.longitude;
   const toLat = to.lat || to.center.latitude;

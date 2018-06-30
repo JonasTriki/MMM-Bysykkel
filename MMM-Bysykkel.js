@@ -42,7 +42,7 @@ Module.register("MMM-Bysykkel", {
 			top.className = "top";
 
 			const logo = document.createElement("img");
-			logo.src = this.getImage("bysykkel-bergen"); // TODO: Make it choose the correct img
+			logo.src = this.getImage("bysykkel"); // TODO: Make it choose the correct img
 			top.appendChild(logo);
 
 			wrapper.appendChild(top);
@@ -123,7 +123,7 @@ Module.register("MMM-Bysykkel", {
 	},
 
 	getImage: function(name) {
-		return "/modules/MMM-Bysykkel/img/" + name + ".svg";
+		return "/modules/MMM-Bysykkel/img/" + this.config.city + "-" + name + ".svg";
 	},
 
 	requestData: function() {
