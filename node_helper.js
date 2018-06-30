@@ -27,7 +27,7 @@ module.exports = NodeHelper.create({
       return;
     }
 
-    city.fetchData(payload.from, payload.to, function(data) {
+    city.fetchData(payload.googleMapsApiKey, payload.language, payload.from, payload.to, function(data) {
       self.sendSocketNotification("DATA_FETCHED", data);
     });
   },

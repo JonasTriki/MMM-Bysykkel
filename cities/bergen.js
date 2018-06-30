@@ -1,10 +1,11 @@
 const request = require("request");
+const DirectionsAPI = require("../utils/directionsApi");
 
 const stationInfo = "http://gbfs.urbansharing.com/bergen-city-bike/station_information.json";
 const stationStatus = "http://gbfs.urbansharing.com/bergen-city-bike/station_status.json";
 
 const Bergen = {
-  fetchData: function(fromStationId, toStationId, cb) {
+  fetchData: function(googleMapsApiKey, language, fromStationId, toStationId, cb) {
     const self = this;
 
     request({url: stationInfo, method: "GET"}, function(err, resp, body) {
@@ -24,25 +25,38 @@ const Bergen = {
         }
 
         // ... fetched the station statuses
-      const statusJson = JSON.parse(body2);
+        const statusJson = JSON.parse(body2);
         const fromStationStatus = self.findStation(statusJson, fromStationId);
         const toStationStatus = self.findStation(statusJson, toStationId);
 
-        // ... and finally, prepare and send the response.
+        // ... prepare the response.
         const data = {
           from: {
             name: fromStationInfo.name,
             available: fromStationStatus.num_bikes_available,
             total: fromStationInfo.capacity
           },
-          eta: 10, // TODO: call google API
           to: {
             name: toStationInfo.name,
             available: toStationStatus.num_docks_available,
             total: toStationInfo.capacity
           }
         };
-        cb(data);
+
+        // ... call google API if we have the key
+        if (googleMapsApiKey !== "") {
+          DirectionsAPI.getDuration(fromStationInfo, toStationInfo, language, googleMapsApiKey, function(duration) {
+            if (duration === null) {
+              cb(data);
+              return;
+            }
+            
+            data.eta = duration;
+            cb(data);
+          });
+        } else {
+          cb(data);
+        }
       });
     });
   },

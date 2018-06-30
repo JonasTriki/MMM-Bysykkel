@@ -1,9 +1,8 @@
-
-
 Module.register("MMM-Bysykkel", {
 
 	defaults: {
-		updateInterval: 15000,	// How often we would call the API's in milliseconds. (Default 15 seconds)
+		updateInterval: 60000,	// How often we would call the API's in milliseconds. (Default 60 seconds)
+		googleMapsApiKey: "", // Google Maps API Key for calculating the time between the city bike stops.
 		city: "bergen", // What city we're looking in.
 		fromStationId: 34, // Desired starting station identifier; used to tell which station we're starting from.
 		toStationId: 212 // Desired end station identifier; used to tell which station we're heading towards.
@@ -57,7 +56,7 @@ Module.register("MMM-Bysykkel", {
 				this.fetchedData.from.total,
 				this.fetchedData.from.name
 			);
-			const eta = this.createEtaSection(this.formatTime(this.fetchedData.eta));
+			const eta = this.createEtaSection(this.fetchedData.eta);
 			const to = this.createInfoSection(
 				"lock-open",
 				this.fetchedData.to.available,
@@ -103,7 +102,7 @@ Module.register("MMM-Bysykkel", {
 		return section;
 	},
 
-	createEtaSection: function(text) {
+	createEtaSection: function(eta) {
 		const section = document.createElement("div");
 		section.className = "section";
 
@@ -111,12 +110,14 @@ Module.register("MMM-Bysykkel", {
 		const img = document.createElement("img");
 		img.src = this.getImage("nav-dots");
 		top.appendChild(img);
-
-		const bottom = document.createElement("div");
-		bottom.innerHTML = text;
-
 		section.appendChild(top);
-		section.appendChild(bottom);
+
+		// Check if we have an eta. (JSON object w/ text and value)
+		if (eta) {
+			const bottom = document.createElement("div");
+			bottom.innerHTML = "~" + eta.text;
+			section.appendChild(bottom);
+		}
 		return section;
 	},
 
@@ -124,15 +125,16 @@ Module.register("MMM-Bysykkel", {
 		return "/modules/MMM-Bysykkel/img/" + name + ".svg";
 	},
 
-	formatTime: function(time) {
-		return "~" + time + " min"; // TODO: actual formatting. time = seconds.
-	},
-
 	requestData: function() {
 		console.log(this.translate("LOADING") + ": " + this.name);
 		const self = this;
 
-		this.queryData(this.config.city, this.config.fromStationId, this.config.toStationId);
+		this.queryData(
+			this.config.googleMapsApiKey,
+			this.config.city,
+			this.config.fromStationId,
+			this.config.toStationId
+		);
 	},
 
 	socketNotificationReceived: function(notification, payload) {
@@ -145,8 +147,10 @@ Module.register("MMM-Bysykkel", {
 		}
 	},
 
-	queryData: function(city, from, to) {
+	queryData: function(googleMapsApiKey, city, from, to) {
 		this.sendSocketNotification("FETCH_DATA", {
+			googleMapsApiKey: googleMapsApiKey,
+			language: this.config.language,
 			city: city,
 			from: from,
 			to: to
