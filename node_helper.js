@@ -19,15 +19,15 @@ module.exports = NodeHelper.create({
     }
   },
 
-  fetchData: function(payload) {
+  fetchData: function(config) {
     const self = this;
-    const city = this.getCity(payload.city);
+    const city = this.getCity(config.city);
     if (city === null) {
       this.sendSocketNotification("CITY_ERROR", "Could not find city!");
       return;
     }
 
-    city.fetchData(payload.googleMapsApiKey, payload.language, payload.from, payload.to, function(data) {
+    city.fetchData(config, function(data) {
       self.sendSocketNotification("DATA_FETCHED", data);
     });
   },

@@ -2,10 +2,11 @@ Module.register("MMM-Bysykkel", {
 
 	defaults: {
 		updateInterval: 60000,	// How often we would call the API's in milliseconds. (Default 60 seconds)
-		googleMapsApiKey: "", // Google Maps API Key for calculating the time between the city bike stops.
-		city: "bergen", // What city we're looking in.
-		fromStationId: 34, // Desired starting station identifier; used to tell which station we're starting from.
-		toStationId: 212 // Desired end station identifier; used to tell which station we're heading towards.
+		osloBysykkelId: "", // Client identifier for Oslo Bysykkel. Required if city === "oslo". (Default empty string)
+		googleMapsApiKey: "", // Google Maps API Key for calculating the time between the city bike stops. (Default empty string)
+		city: "bergen", // What city we're looking in. (Default "bergen")
+		fromStationId: 3, // Desired starting station identifier; used to tell which station we're starting from.
+		toStationId: 157 // Desired end station identifier; used to tell which station we're heading towards.
 	},
 
 	getStyles: function () {
@@ -127,14 +128,7 @@ Module.register("MMM-Bysykkel", {
 
 	requestData: function() {
 		console.log(this.translate("LOADING") + ": " + this.name);
-		const self = this;
-
-		this.queryData(
-			this.config.googleMapsApiKey,
-			this.config.city,
-			this.config.fromStationId,
-			this.config.toStationId
-		);
+		this.sendSocketNotification("FETCH_DATA", this.config);
 	},
 
 	socketNotificationReceived: function(notification, payload) {
@@ -145,15 +139,5 @@ Module.register("MMM-Bysykkel", {
 			clearInterval(this.timer);
 			console.log(this.translate("CITY_ERROR"));
 		}
-	},
-
-	queryData: function(googleMapsApiKey, city, from, to) {
-		this.sendSocketNotification("FETCH_DATA", {
-			googleMapsApiKey: googleMapsApiKey,
-			language: this.config.language,
-			city: city,
-			from: from,
-			to: to
-		});
 	}
 });

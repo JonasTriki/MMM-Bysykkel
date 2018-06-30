@@ -1,7 +1,12 @@
 const request = require("request");
 
 const directionsUrl = function(from, to, language, key) {
-  return `https://maps.googleapis.com/maps/api/directions/json?origin=${from.lat},${from.lon}&destination=${to.lat},${to.lon}&mode=bicycling&language=${language}&key=${key}`;
+  //              Bergen   ||        Oslo
+  const fromLat = from.lat || from.center.latitude;
+  const fromLng = from.lon || from.center.longitude;
+  const toLat = to.lat || to.center.latitude;
+  const toLng = to.lon || to.center.longitude;
+  return `https://maps.googleapis.com/maps/api/directions/json?origin=${fromLat},${fromLng}&destination=${toLat},${toLng}&mode=bicycling&language=${language}&key=${key}`;
 };
 
 const DirectionsAPI = {
