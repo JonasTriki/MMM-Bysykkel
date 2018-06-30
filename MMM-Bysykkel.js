@@ -4,9 +4,9 @@ Module.register("MMM-Bysykkel", {
 		updateInterval: 60000,	// How often we would call the API's in milliseconds. (Default 60 seconds)
 		osloBysykkelId: "", // Client identifier for Oslo Bysykkel. Required if city === "oslo". (Default empty string)
 		googleMapsApiKey: "", // Google Maps API Key for calculating the time between the city bike stops. (Default empty string)
-		city: "bergen", // What city we're looking in. (Default "bergen")
+		city: "bergen", // What city we're biking in. (Default "bergen")
 		fromStationId: 3, // Desired starting station identifier; used to tell which station we're starting from.
-		toStationId: 157 // Desired end station identifier; used to tell which station we're heading towards.
+		toStationId: 5 // Desired end station identifier; used to tell which station we're heading towards.
 	},
 
 	getStyles: function () {
