@@ -99,7 +99,7 @@ const UrbanCity = {
 
   findStation: function(json, stationId) {
     return json.data.stations.find(function(s) {
-      return s.station_id === stationId
+      return +s.station_id === +stationId
     });
   }
 }
