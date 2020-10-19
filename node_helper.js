@@ -1,25 +1,23 @@
 const express = require("express");
 const NodeHelper = require("node_helper");
-const path = require("path");
 
-const cityOslo = require("./cities/oslo");
-const cityBergen = require("./cities/bergen").create(); // Important to call create!
+const cityOslo = require("./cities/oslo").create(); // Important to call create!
+const cityBergen = require("./cities/bergen").create();
 const cityTrondheim = require("./cities/trondheim").create();
 
 module.exports = NodeHelper.create({
-
-	// Override start method.
-	start: function() {
+  // Override start method.
+  start: function () {
     console.log("Starting node helper for: " + this.name);
   },
 
   socketNotificationReceived: function (notification, payload) {
     if (notification === "FETCH_DATA") {
-      this.fetchData(payload); 
+      this.fetchData(payload);
     }
   },
 
-  fetchData: function(config) {
+  fetchData: function (config) {
     const self = this;
     const city = this.getCity(config.city);
     if (city === null) {
@@ -27,12 +25,12 @@ module.exports = NodeHelper.create({
       return;
     }
 
-    city.fetchData(config, function(data) {
+    city.fetchData(config, function (data) {
       self.sendSocketNotification("DATA_FETCHED", data);
     });
   },
 
-  getCity: function(city) {
+  getCity: function (city) {
     switch (city) {
       case "oslo":
         return cityOslo;

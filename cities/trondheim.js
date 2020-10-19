@@ -4,8 +4,8 @@ const Trondheim = {
   create: function () {
     return UrbanCity.create(
       "Trondheim",
-      "http://gbfs.urbansharing.com/trondheim/station_information.json",
-      "http://gbfs.urbansharing.com/trondheim/station_status.json"
+      "https://gbfs.urbansharing.com/trondheimbysykkel.no/station_information.json",
+      "https://gbfs.urbansharing.com/trondheimbysykkel.no/station_status.json"
     );
   }
 };

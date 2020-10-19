@@ -1,143 +1,142 @@
 Module.register("MMM-Bysykkel", {
+  defaults: {
+    updateInterval: 60000, // How often we would call the API's in milliseconds. (Default 60 seconds)
+    clientIdentifier: "magicmirror-module-bysykkel", // Client identifier for the module. (Default "magicmirror-module-bysykkel")
+    googleMapsApiKey: "", // Google Maps API Key for calculating the time between the city bike stops. (Default empty string)
+    city: "bergen", // What city we're biking in. (Default "bergen")
+    fromStationId: 3, // Desired starting station identifier; used to tell which station we're starting from.
+    toStationId: 5 // Desired end station identifier; used to tell which station we're heading towards.
+  },
 
-	defaults: {
-		updateInterval: 60000,	// How often we would call the API's in milliseconds. (Default 60 seconds)
-		osloBysykkelId: "", // Client identifier for Oslo Bysykkel. Required if city === "oslo". (Default empty string)
-		googleMapsApiKey: "", // Google Maps API Key for calculating the time between the city bike stops. (Default empty string)
-		city: "bergen", // What city we're biking in. (Default "bergen")
-		fromStationId: 3, // Desired starting station identifier; used to tell which station we're starting from.
-		toStationId: 5 // Desired end station identifier; used to tell which station we're heading towards.
-	},
+  getStyles: function () {
+    return ["style.css"];
+  },
 
-	getStyles: function () {
-		return ["style.css"];
-	},
+  getTranslations: function () {
+    return {
+      en: "translations/en.json",
+      nb: "translations/nb.json"
+    };
+  },
 
-	getTranslations: function() {
-		return {
-			en: "translations/en.json",
-			nb: "translations/nb.json"
-		}
-	},
+  start: function () {
+    // Request data every {updateInterval} ms.
+    const self = this;
+    this.requestData();
 
-	start: function() {
+    this.timer = setInterval(function () {
+      self.requestData();
+    }, this.config.updateInterval);
+  },
 
-		// Request data every {updateInterval} ms.
-		const self = this;
-		this.requestData();
+  getDom: function () {
+    const wrapper = document.createElement("div");
+    wrapper.className = "wrapper";
 
-		this.timer = setInterval(function() {
-			self.requestData();
-		}, this.config.updateInterval);
-	},
+    if (this.fetchedData) {
+      // Top section w/logo
+      const top = document.createElement("div");
+      top.className = "top";
 
-	getDom: function() {
-		const wrapper = document.createElement("div");
-		wrapper.className = "wrapper";
+      const logo = document.createElement("img");
+      logo.src = this.getImage("bysykkel"); // TODO: Make it choose the correct img
+      top.appendChild(logo);
 
-		if (this.fetchedData) {
+      wrapper.appendChild(top);
 
-			// Top section w/logo
-			const top = document.createElement("div");
-			top.className = "top";
+      // Bottom section with from, eta and to
+      const bottom = document.createElement("div");
+      bottom.className = "bottom";
 
-			const logo = document.createElement("img");
-			logo.src = this.getImage("bysykkel"); // TODO: Make it choose the correct img
-			top.appendChild(logo);
+      const from = this.createInfoSection(
+        "bike",
+        this.fetchedData.from.available,
+        this.fetchedData.from.total,
+        this.fetchedData.from.name
+      );
+      const eta = this.createEtaSection(this.fetchedData.eta);
+      const to = this.createInfoSection(
+        "lock-open",
+        this.fetchedData.to.available,
+        this.fetchedData.to.total,
+        this.fetchedData.to.name
+      );
 
-			wrapper.appendChild(top);
+      bottom.appendChild(from);
+      bottom.appendChild(eta);
+      bottom.appendChild(to);
+      wrapper.appendChild(bottom);
+    } else {
+      wrapper.innerHTML = this.translate("LOADING");
+    }
+    return wrapper;
+  },
 
-			// Bottom section with from, eta and to
-			const bottom = document.createElement("div");
-			bottom.className = "bottom";
+  createInfoSection: function (iconName, m, n, name) {
+    const section = document.createElement("div");
+    section.className = "section";
 
-			const from = this.createInfoSection(
-				"bike",
-				this.fetchedData.from.available,
-				this.fetchedData.from.total,
-				this.fetchedData.from.name
-			);
-			const eta = this.createEtaSection(this.fetchedData.eta);
-			const to = this.createInfoSection(
-				"lock-open",
-				this.fetchedData.to.available,
-				this.fetchedData.to.total,
-				this.fetchedData.to.name
-			);
+    const top = document.createElement("div");
+    const icon = document.createElement("div");
+    const img = document.createElement("img");
+    img.src = this.getImage(iconName);
+    icon.appendChild(img);
+    top.appendChild(icon);
 
-			bottom.appendChild(from);
-			bottom.appendChild(eta);
-			bottom.appendChild(to);
-			wrapper.appendChild(bottom);
-		} else {
-			wrapper.innerHTML = this.translate("LOADING");
-		}
-		return wrapper;
-	},
+    const mOfN = document.createElement("div");
+    const span = document.createElement("span");
+    span.className = "big";
+    span.innerHTML = m;
+    mOfN.className = "bold";
+    mOfN.appendChild(span);
+    mOfN.innerHTML += "/" + n;
+    top.appendChild(mOfN);
 
-	createInfoSection: function(iconName, m, n, name) {
-		const section = document.createElement("div");
-		section.className = "section";
+    const bottom = document.createElement("div");
+    bottom.innerHTML = name;
 
-		const top = document.createElement("div");
-		const icon = document.createElement("div");
-		const img = document.createElement("img");
-		img.src = this.getImage(iconName);
-		icon.appendChild(img);
-		top.appendChild(icon);
+    section.appendChild(top);
+    section.appendChild(bottom);
+    return section;
+  },
 
-		const mOfN = document.createElement("div");
-		const span = document.createElement("span");
-		span.className = "big";
-		span.innerHTML = m;
-		mOfN.className = "bold";
-		mOfN.appendChild(span);
-		mOfN.innerHTML += "/" + n;
-		top.appendChild(mOfN);
+  createEtaSection: function (eta) {
+    const section = document.createElement("div");
+    section.className = "section";
 
-		const bottom = document.createElement("div");
-		bottom.innerHTML = name;
+    const top = document.createElement("div");
+    const img = document.createElement("img");
+    img.src = this.getImage("nav-dots");
+    top.appendChild(img);
+    section.appendChild(top);
 
-		section.appendChild(top);
-		section.appendChild(bottom);
-		return section;
-	},
+    // Check if we have an eta. (JSON object w/ text and value)
+    if (eta) {
+      const bottom = document.createElement("div");
+      bottom.innerHTML = "~" + eta.text;
+      section.appendChild(bottom);
+    }
+    return section;
+  },
 
-	createEtaSection: function(eta) {
-		const section = document.createElement("div");
-		section.className = "section";
+  getImage: function (name) {
+    return (
+      "/modules/MMM-Bysykkel/img/" + this.config.city + "-" + name + ".svg"
+    );
+  },
 
-		const top = document.createElement("div");
-		const img = document.createElement("img");
-		img.src = this.getImage("nav-dots");
-		top.appendChild(img);
-		section.appendChild(top);
+  requestData: function () {
+    console.log(this.translate("LOADING") + ": " + this.name);
+    this.sendSocketNotification("FETCH_DATA", this.config);
+  },
 
-		// Check if we have an eta. (JSON object w/ text and value)
-		if (eta) {
-			const bottom = document.createElement("div");
-			bottom.innerHTML = "~" + eta.text;
-			section.appendChild(bottom);
-		}
-		return section;
-	},
-
-	getImage: function(name) {
-		return "/modules/MMM-Bysykkel/img/" + this.config.city + "-" + name + ".svg";
-	},
-
-	requestData: function() {
-		console.log(this.translate("LOADING") + ": " + this.name);
-		this.sendSocketNotification("FETCH_DATA", this.config);
-	},
-
-	socketNotificationReceived: function(notification, payload) {
-		if (notification === "DATA_FETCHED") {
-			this.fetchedData = payload;
-			this.updateDom();
-		} else if (notification === "CITY_ERROR") {
-			clearInterval(this.timer);
-			console.log(this.translate("CITY_ERROR"));
-		}
-	}
+  socketNotificationReceived: function (notification, payload) {
+    if (notification === "DATA_FETCHED") {
+      this.fetchedData = payload;
+      this.updateDom();
+    } else if (notification === "CITY_ERROR") {
+      clearInterval(this.timer);
+      console.log(this.translate("CITY_ERROR"));
+    }
+  }
 });
