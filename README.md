@@ -5,6 +5,11 @@ MagicMirror² module for showing the availability of the city bikes around in No
 This module is inspired by the [MMM-OsloCityBike](https://github.com/TobbenTM/MMM-OsloCityBike) module from TobbenTM.
 
 ![Screenshot](img/screenshot.png)
+_Primary mode, with both departure and arrival stations defined._
+
+
+![Screenshot Single station mode](img/screenshot2.png)
+_Secondary, simple mode with only departure station defined._
 
 ## Installation
 
@@ -53,7 +58,7 @@ These are the valid configuration options you can put inside the config array ab
 | googleMapsApiKey     | [Google Maps API Key](https://developers.google.com/maps/documentation/javascript/get-api-key) for calculating the time between the city bike stops. Required if you want estimated time between stations. | ""                            |
 | city                 | What city we're biking in.                                                                                                                                                                                 | "bergen"                      |
 | fromStationId        | Desired starting station identifier; used to tell which station we're starting from.                                                                                                                       | 3                             |
-| toStationId          | Desired end station identifier; used to tell which station we're heading towards.                                                                                                                          | 5                             |
+| toStationId          | Desired end station identifier; used to tell which station we're heading towards. If omitted, the module will display a simple variant (see screenshot 2).                                                                                                                          | 5                             |
 
 For from/to-StationId, please visit the the documentation of the cities for reference.
 

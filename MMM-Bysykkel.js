@@ -34,42 +34,68 @@ Module.register("MMM-Bysykkel", {
     wrapper.className = "wrapper";
 
     if (this.fetchedData) {
-      // Top section w/logo
-      const top = document.createElement("div");
-      top.className = "top";
+      if (this.fetchedData.to) {
+        this.displayFromTo(wrapper);
+      } else {
+        this.displaySingleStation(wrapper);
+      }
+    } else {
+      wrapper.innerHTML = this.translate("LOADING");
+    }
+    return wrapper;
+  },
 
-      const logo = document.createElement("img");
-      logo.src = this.getImage("bysykkel"); // TODO: Make it choose the correct img
-      top.appendChild(logo);
+  displayFromTo: function(wrapper) {
+    // Top section w/logo
+    const top = document.createElement("div");
+    top.className = "top";
 
-      wrapper.appendChild(top);
+    const logo = document.createElement("img");
+    logo.src = this.getImage("bysykkel"); // TODO: Make it choose the correct img
+    top.appendChild(logo);
 
-      // Bottom section with from, eta and to
-      const bottom = document.createElement("div");
-      bottom.className = "bottom";
+    wrapper.appendChild(top);
 
-      const from = this.createInfoSection(
-        "bike",
-        this.fetchedData.from.available,
-        this.fetchedData.from.total,
-        this.fetchedData.from.name
-      );
-      const eta = this.createEtaSection(this.fetchedData.eta);
+    // Bottom section with from, eta and to
+    const bottom = document.createElement("div");
+    bottom.className = "bottom";
+
+    const from = this.createInfoSection(
+      "bike",
+      this.fetchedData.from.available,
+      this.fetchedData.from.total,
+      this.fetchedData.from.name
+    );
+    const eta = this.createEtaSection(this.fetchedData.eta);
+    if (this.fetchedData.to) {
       const to = this.createInfoSection(
         "lock-open",
         this.fetchedData.to.available,
         this.fetchedData.to.total,
         this.fetchedData.to.name
       );
-
-      bottom.appendChild(from);
-      bottom.appendChild(eta);
-      bottom.appendChild(to);
-      wrapper.appendChild(bottom);
-    } else {
-      wrapper.innerHTML = this.translate("LOADING");
     }
-    return wrapper;
+
+    bottom.appendChild(from);
+    bottom.appendChild(eta);
+    bottom.appendChild(to);
+    wrapper.appendChild(bottom);
+  },
+
+  displaySingleStation: function(wrapper) {
+
+    // Bottom section with from, eta and to
+    const bottom = document.createElement("div");
+    bottom.className = "bottom";
+
+    const from = this.createInfoSection(
+      "bike",
+      this.fetchedData.from.available,
+      this.fetchedData.from.total
+    );
+
+    bottom.appendChild(from);
+    wrapper.appendChild(bottom);
   },
 
   createInfoSection: function (iconName, m, n, name) {
@@ -92,11 +118,13 @@ Module.register("MMM-Bysykkel", {
     mOfN.innerHTML += "/" + n;
     top.appendChild(mOfN);
 
-    const bottom = document.createElement("div");
-    bottom.innerHTML = name;
-
     section.appendChild(top);
-    section.appendChild(bottom);
+
+    if (name) {
+      const bottom = document.createElement("div");
+      bottom.innerHTML = name;
+      section.appendChild(bottom);
+    }
     return section;
   },
 
