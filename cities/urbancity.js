@@ -51,28 +51,31 @@ const UrbanCity = {
           return;
         }
 
-        // Fetched the station infos,
+        // Fetch the station infos and prepare response
+        data = new Object();
         const infoJson = JSON.parse(body);
         const fromStationInfo = self.findStation(
           infoJson,
           config.fromStationId
         );
-        const toStationInfo = self.findStation(infoJson, config.toStationId);
+        data.from = {
+          name: fromStationInfo.name,
+          total: fromStationInfo.capacity
+        }
 
-        // ... prepare the response
-        const data = {
-          from: {
-            name: fromStationInfo.name,
-            total: fromStationInfo.capacity
-          },
-          to: {
+        if(config.toStationId !== -1) {
+          const toStationInfo = self.findStation(
+            infoJson,
+            config.toStationId
+          );
+          data.to = {
             name: toStationInfo.name,
             total: toStationInfo.capacity
           }
-        };
+        }
 
         // and call google API if we have the key.
-        if (config.googleMapsApiKey !== "") {
+        if (config.googleMapsApiKey !== "" && toStationInfo !== undefined) {
           DirectionsAPI.getDuration(
             fromStationInfo,
             toStationInfo,
@@ -118,13 +121,16 @@ const UrbanCity = {
           statusJson,
           config.fromStationId
         );
-        const toStationStatus = self.findStation(
-          statusJson,
-          config.toStationId
-        );
-
         self.data.from.available = fromStationStatus.num_bikes_available;
-        self.data.to.available = toStationStatus.num_docks_available;
+
+        if (config.toStationId !== -1) {
+          const toStationStatus = self.findStation(
+            statusJson,
+            config.toStationId
+          );
+          self.data.to.available = toStationStatus.num_docks_available;
+        }
+        
         cb(self.data);
       }
     );
