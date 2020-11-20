@@ -4,11 +4,11 @@ MagicMirror² module for showing the availability of the city bikes around in No
 
 This module is inspired by the [MMM-OsloCityBike](https://github.com/TobbenTM/MMM-OsloCityBike) module from TobbenTM.
 
-![Screenshot](img/screenshot.png)
+![Screenshot](img/screenshot.png)  
 _Primary mode, with both departure and arrival stations defined._
 
 
-![Screenshot Single station mode](img/screenshot2.png)
+![Screenshot Single station mode](img/screenshot2.png)  
 _Secondary, simple mode with only departure station defined._
 
 ## Installation
