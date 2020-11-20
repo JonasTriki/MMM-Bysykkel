@@ -63,7 +63,7 @@ const UrbanCity = {
           total: fromStationInfo.capacity
         }
 
-        if(config.toStationId) {
+        if(config.toStationId !== -1) {
           const toStationInfo = self.findStation(
             infoJson,
             config.toStationId
@@ -123,7 +123,7 @@ const UrbanCity = {
         );
         self.data.from.available = fromStationStatus.num_bikes_available;
 
-        if (config.toStationId) {
+        if (config.toStationId !== -1) {
           const toStationStatus = self.findStation(
             statusJson,
             config.toStationId

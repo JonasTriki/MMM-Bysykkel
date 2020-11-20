@@ -5,11 +5,12 @@ Module.register("MMM-Bysykkel", {
     googleMapsApiKey: "", // Google Maps API Key for calculating the time between the city bike stops. (Default empty string)
     city: "bergen", // What city we're biking in. (Default "bergen")
     fromStationId: 3, // Desired starting station identifier; used to tell which station we're starting from.
-    toStationId: 5 // Desired end station identifier; used to tell which station we're heading towards.
+    toStationId: 5, // Desired end station identifier; used to tell which station we're heading towards.
+    displaySingleStationName: false, // Whether to display the station name if only from station is specified.
   },
 
   getStyles: function () {
-    return ["style.css"];
+    return [this.file("style.css")];
   },
 
   getTranslations: function () {
@@ -68,7 +69,7 @@ Module.register("MMM-Bysykkel", {
     );
     const eta = this.createEtaSection(this.fetchedData.eta);
     if (this.fetchedData.to) {
-      const to = this.createInfoSection(
+      var to = this.createInfoSection(
         "lock-open",
         this.fetchedData.to.available,
         this.fetchedData.to.total,
@@ -86,12 +87,13 @@ Module.register("MMM-Bysykkel", {
 
     // Bottom section with from, eta and to
     const bottom = document.createElement("div");
-    bottom.className = "bottom";
+    bottom.className = "bottom singleStation";
 
     const from = this.createInfoSection(
       "bike",
       this.fetchedData.from.available,
-      this.fetchedData.from.total
+      this.fetchedData.from.total,
+      this.config.displaySingleStationName ? this.fetchedData.from.name : null
     );
 
     bottom.appendChild(from);

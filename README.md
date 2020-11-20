@@ -58,7 +58,8 @@ These are the valid configuration options you can put inside the config array ab
 | googleMapsApiKey     | [Google Maps API Key](https://developers.google.com/maps/documentation/javascript/get-api-key) for calculating the time between the city bike stops. Required if you want estimated time between stations. | ""                            |
 | city                 | What city we're biking in.                                                                                                                                                                                 | "bergen"                      |
 | fromStationId        | Desired starting station identifier; used to tell which station we're starting from.                                                                                                                       | 3                             |
-| toStationId          | Desired end station identifier; used to tell which station we're heading towards. If set to 0, the module will display a simple variant (see screenshot 2).                                                                                                                          | 5                             |
+| toStationId          | Desired end station identifier; used to tell which station we're heading towards. If set to -1, the module will display a simple variant (see screenshot 2).                                                                                                                          | 5                             |
+| displaySingleStationName          | Whether to display the station name if only from station is specified.                                                                                                                          | false                             |
 
 For from/to-StationId, please visit the the documentation of the cities for reference.
 
