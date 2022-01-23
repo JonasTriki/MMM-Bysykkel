@@ -6,7 +6,7 @@ Module.register("MMM-Bysykkel", {
     city: "bergen", // What city we're biking in. (Default "bergen")
     fromStationId: 3, // Desired starting station identifier; used to tell which station we're starting from.
     toStationId: 5, // Desired end station identifier; used to tell which station we're heading towards.
-    displaySingleStationName: false, // Whether to display the station name if only from station is specified.
+    displaySingleStationName: false // Whether to display the station name if only from station is specified.
   },
 
   getStyles: function () {
@@ -35,18 +35,20 @@ Module.register("MMM-Bysykkel", {
     wrapper.className = "wrapper";
 
     if (this.fetchedData) {
-      if (this.fetchedData.to) {
-        this.displayFromTo(wrapper);
-      } else {
-        this.displaySingleStation(wrapper);
-      }
+      this.fetchedData.stations.forEach((station) => {
+        if (station.to) {
+          this.addFromToRow(station, wrapper);
+        } else {
+          this.addSingleStationRow(station, wrapper);
+        }
+      });
     } else {
       wrapper.innerHTML = this.translate("LOADING");
     }
     return wrapper;
   },
 
-  displayFromTo: function(wrapper) {
+  addFromToRow: function (station, wrapper) {
     // Top section w/logo
     const top = document.createElement("div");
     top.className = "top";
@@ -63,17 +65,17 @@ Module.register("MMM-Bysykkel", {
 
     const from = this.createInfoSection(
       "bike",
-      this.fetchedData.from.available,
-      this.fetchedData.from.total,
-      this.fetchedData.from.name
+      station.from.available,
+      station.from.total,
+      station.from.name
     );
-    const eta = this.createEtaSection(this.fetchedData.eta);
-    if (this.fetchedData.to) {
+    const eta = this.createEtaSection(station.eta);
+    if (station.to) {
       var to = this.createInfoSection(
         "lock-open",
-        this.fetchedData.to.available,
-        this.fetchedData.to.total,
-        this.fetchedData.to.name
+        station.to.available,
+        station.to.total,
+        station.to.name
       );
     }
 
@@ -83,17 +85,16 @@ Module.register("MMM-Bysykkel", {
     wrapper.appendChild(bottom);
   },
 
-  displaySingleStation: function(wrapper) {
-
+  addSingleStationRow: function (station, wrapper) {
     // Bottom section with from, eta and to
     const bottom = document.createElement("div");
     bottom.className = "bottom singleStation";
 
     const from = this.createInfoSection(
       "bike",
-      this.fetchedData.from.available,
-      this.fetchedData.from.total,
-      this.config.displaySingleStationName ? this.fetchedData.from.name : null
+      station.from.available,
+      station.from.total,
+      this.config.displaySingleStationName ? station.from.name : null
     );
 
     bottom.appendChild(from);

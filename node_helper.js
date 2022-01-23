@@ -1,6 +1,4 @@
-const express = require("express");
 const NodeHelper = require("node_helper");
-
 const cityOslo = require("./cities/oslo").create(); // Important to call create!
 const cityBergen = require("./cities/bergen").create();
 const cityTrondheim = require("./cities/trondheim").create();
@@ -17,17 +15,24 @@ module.exports = NodeHelper.create({
     }
   },
 
-  fetchData: function (config) {
-    const self = this;
+  fetchData: async function (config) {
     const city = this.getCity(config.city);
     if (city === null) {
       this.sendSocketNotification("CITY_ERROR", "Could not find city!");
       return;
     }
 
-    city.fetchData(config, function (data) {
-      self.sendSocketNotification("DATA_FETCHED", data);
-    });
+    try {
+      const fetchedData = await city.fetchData(config);
+      if (fetchedData) {
+        this.sendSocketNotification("DATA_FETCHED", fetchedData);
+      }
+    } catch (err) {
+      this.sendSocketNotification(
+        "CITY_ERROR",
+        "Could not fetch data for city: " + err
+      );
+    }
   },
 
   getCity: function (city) {
