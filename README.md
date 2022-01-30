@@ -59,6 +59,7 @@ These are the valid configuration options you can put inside the config array ab
 | city                 | What city we're biking in.                                                                                                                                                                                 | "bergen"                      |
 | stations        | List of desited stations with their respective starting and end identifiers. The stations are shown in order. If the end station identifier is set to -1, the module will display a simple variant (see screenshot 2).                                                                                                                       | [{from: 3, to: 5}]                             |
 | displaySingleStationName          | Whether to display the station name if only from station is specified.                                                                                                                          | false                             |
+| showLogo | Whether to display the Bysykkel-logo | true |
 
 For from and to stations IDs, please visit the the documentation of the cities for reference.
 
