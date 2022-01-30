@@ -1,4 +1,4 @@
-const request = require("request");
+const axios = require("axios");
 const DirectionsAPI = require("../utils/directionsApi");
 
 /**
@@ -15,125 +15,103 @@ const UrbanCity = {
     return city;
   },
 
-  fetchData: function (config, cb) {
-    const self = this;
+  fetchData: async function (config) {
+    try {
+      if (this.data) {
+        await this.fetchStatus(config);
+        return this.data;
+      } else {
+        this.data = await this.fetchInfo(config);
+        console.log(`Initial ${this.name} data loaded.`);
 
-    if (this.data) {
-      this.fetchStatus(config, cb);
-    } else {
-      this.fetchInfo(config, function (data) {
-        console.log(`Initial ${self.name} data loaded.`);
-
-        // Set initial info data and call function again (DRY).
-        self.data = data;
-        self.fetchData(config, cb);
-      });
+        // Call function again with this.data set
+        return this.fetchData(config);
+      }
+    } catch (err) {
+      console.log("FETCH_DATA_ERROR", err);
     }
+    return null;
   },
 
   getHeader: function (config) {
     return { "Client-Identifier": config.clientIdentifier };
   },
 
-  fetchInfo: function (config, cb) {
-    const self = this;
-
-    request(
-      {
-        url: this.stationsInfoUrl,
-        method: "GET",
+  fetchInfo: async function (config) {
+    try {
+      const { data: infoJson } = await axios.get(this.stationsInfoUrl, {
         headers: this.getHeader(config)
-      },
-      function (err, resp, body) {
-        if (err) {
-          console.log("FETCH_INFO_ERROR", err);
-          cb(null);
-          return;
-        }
+      });
 
-        // Fetch the station infos and prepare response
-        data = new Object();
-        const infoJson = JSON.parse(body);
-        const fromStationInfo = self.findStation(
-          infoJson,
-          config.fromStationId
-        );
-        data.from = {
-          name: fromStationInfo.name,
-          total: fromStationInfo.capacity
-        }
+      // Fetch the station infos and prepare response
+      const data = new Object();
+      const canGetDuration = config.googleMapsApiKey !== "";
+      data.stations = await Promise.all(
+        config.stations.map(async (station) => {
+          const stationData = {};
 
-        if(config.toStationId !== -1) {
-          const toStationInfo = self.findStation(
-            infoJson,
-            config.toStationId
-          );
-          data.to = {
-            name: toStationInfo.name,
-            total: toStationInfo.capacity
-          }
-        }
+          // Find from station info
+          const fromStationInfo = this.findStation(infoJson, station.from);
+          stationData.from = {
+            name: fromStationInfo.name,
+            total: fromStationInfo.capacity
+          };
 
-        // and call google API if we have the key.
-        if (config.googleMapsApiKey !== "" && toStationInfo !== undefined) {
-          DirectionsAPI.getDuration(
-            fromStationInfo,
-            toStationInfo,
-            config.language,
-            config.googleMapsApiKey,
-            function (duration) {
-              if (duration === null) {
-                cb(data);
-                return;
-              }
+          // Find to station info
+          if (station.to !== -1) {
+            const toStationInfo = this.findStation(infoJson, station.to);
+            stationData.to = {
+              name: toStationInfo.name,
+              total: toStationInfo.capacity
+            };
 
-              data.eta = duration;
-              cb(data);
+            if (canGetDuration) {
+              // Get duration to bike from A to B using Google
+              stationData.eta = await DirectionsAPI.getDuration(
+                fromStationInfo,
+                toStationInfo,
+                config.language,
+                config.googleMapsApiKey
+              );
             }
-          );
-        } else {
-          cb(data);
-        }
-      }
-    );
+          }
+
+          return stationData;
+        })
+      );
+
+      return data;
+    } catch (err) {
+      console.log("FETCH_INFO_ERROR", err);
+    }
+    return null;
   },
 
-  fetchStatus: function (config, cb) {
-    const self = this;
-
-    // Pre-condition: self.data exists and has from and to props.
-    request(
-      {
-        url: this.stationsStatusUrl,
-        method: "GET",
+  fetchStatus: async function (config) {
+    // Pre-condition: this.data exists and has from and to props.
+    try {
+      // Fetch the station statuses
+      const { data: statusJson } = await axios.get(this.stationsStatusUrl, {
         headers: this.getHeader(config)
-      },
-      function (err, resp, body) {
-        if (err) {
-          console.log("FETCH_INFO_ERROR", err);
-          cb(null);
-          return;
-        }
+      });
 
-        // ... fetched the station statuses
-        const statusJson = JSON.parse(body);
-        const fromStationStatus = self.findStation(
-          statusJson,
-          config.fromStationId
-        );
-        self.data.from.available = fromStationStatus.num_bikes_available;
+      config.stations.forEach((station, i) => {
+        const fromStationStatus = this.findStation(statusJson, station.from);
+        this.data.stations[i].from.available =
+          fromStationStatus.num_bikes_available;
 
-        if (config.toStationId !== -1) {
-          const toStationStatus = self.findStation(
-            statusJson,
-            config.toStationId
-          );
-          self.data.to.available = toStationStatus.num_docks_available;
+        if (station.to !== -1) {
+          const toStationStatus = this.findStation(statusJson, station.to);
+          this.data.stations[i].to.available =
+            toStationStatus.num_docks_available;
         }
-        
-        cb(self.data);
-      }
-    );
+      });
+
+      return true;
+    } catch (err) {
+      console.log("FETCH_INFO_ERROR", err);
+    }
+    return false;
   },
 
   findStation: function (json, stationId) {

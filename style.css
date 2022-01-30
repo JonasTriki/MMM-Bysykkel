@@ -22,6 +22,10 @@
   align-items: center;
 }
 
+.MMM-Bysykkel .wrapper .top img {
+  max-height: 200px;
+}
+
 .MMM-Bysykkel .wrapper .bottom {
   display: flex;
   flex-direction: row;

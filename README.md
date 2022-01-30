@@ -57,11 +57,11 @@ These are the valid configuration options you can put inside the config array ab
 | clientIdentifier     | Client identifier for the module (as [specified by the documentation](https://oslobysykkel.no/en/open-data/realtime), under "Identification in header")                                                    | "magicmirror-module-bysykkel" |
 | googleMapsApiKey     | [Google Maps API Key](https://developers.google.com/maps/documentation/javascript/get-api-key) for calculating the time between the city bike stops. Required if you want estimated time between stations. | ""                            |
 | city                 | What city we're biking in.                                                                                                                                                                                 | "bergen"                      |
-| fromStationId        | Desired starting station identifier; used to tell which station we're starting from.                                                                                                                       | 3                             |
-| toStationId          | Desired end station identifier; used to tell which station we're heading towards. If set to -1, the module will display a simple variant (see screenshot 2).                                                                                                                          | 5                             |
+| stations        | List of desited stations with their respective starting and end identifiers. The stations are shown in order. If the end station identifier is set to -1, the module will display a simple variant (see screenshot 2).                                                                                                                       | [{from: 3, to: 5}]                             |
 | displaySingleStationName          | Whether to display the station name if only from station is specified.                                                                                                                          | false                             |
+| showLogo | Whether to display the Bysykkel-logo | true |
 
-For from/to-StationId, please visit the the documentation of the cities for reference.
+For from and to stations IDs, please visit the the documentation of the cities for reference.
 
 ## Cities
 

@@ -4,9 +4,9 @@ Module.register("MMM-Bysykkel", {
     clientIdentifier: "magicmirror-module-bysykkel", // Client identifier for the module. (Default "magicmirror-module-bysykkel")
     googleMapsApiKey: "", // Google Maps API Key for calculating the time between the city bike stops. (Default empty string)
     city: "bergen", // What city we're biking in. (Default "bergen")
-    fromStationId: 3, // Desired starting station identifier; used to tell which station we're starting from.
-    toStationId: 5, // Desired end station identifier; used to tell which station we're heading towards.
+    stations: [{ from: 3, to: 5 }], // List of desited stations with their respective starting and end identifiers. The stations are shown in order.
     displaySingleStationName: false, // Whether to display the station name if only from station is specified.
+    showLogo: true // Whether to display the Bysykkel-logo
   },
 
   getStyles: function () {
@@ -30,50 +30,52 @@ Module.register("MMM-Bysykkel", {
     }, this.config.updateInterval);
   },
 
+  addTopLogo: function (wrapper) {
+    if (!this.config.showLogo) return;
+    const top = document.createElement("div");
+    top.className = "top";
+    const logo = document.createElement("img");
+    logo.src = this.getImage("bysykkel");
+    top.appendChild(logo);
+    wrapper.appendChild(top);
+  },
+
   getDom: function () {
     const wrapper = document.createElement("div");
     wrapper.className = "wrapper";
 
     if (this.fetchedData) {
-      if (this.fetchedData.to) {
-        this.displayFromTo(wrapper);
-      } else {
-        this.displaySingleStation(wrapper);
-      }
+      this.addTopLogo(wrapper);
+      this.fetchedData.stations.forEach((station) => {
+        if (station.to) {
+          this.addFromToRow(station, wrapper);
+        } else {
+          this.addSingleStationRow(station, wrapper);
+        }
+      });
     } else {
       wrapper.innerHTML = this.translate("LOADING");
     }
     return wrapper;
   },
-
-  displayFromTo: function(wrapper) {
-    // Top section w/logo
-    const top = document.createElement("div");
-    top.className = "top";
-
-    const logo = document.createElement("img");
-    logo.src = this.getImage("bysykkel"); // TODO: Make it choose the correct img
-    top.appendChild(logo);
-
-    wrapper.appendChild(top);
-
+  addFromToRow: function (station, wrapper) {
     // Bottom section with from, eta and to
     const bottom = document.createElement("div");
     bottom.className = "bottom";
 
     const from = this.createInfoSection(
       "bike",
-      this.fetchedData.from.available,
-      this.fetchedData.from.total,
-      this.fetchedData.from.name
+      station.from.available,
+      station.from.total,
+      station.from.name
     );
-    const eta = this.createEtaSection(this.fetchedData.eta);
-    if (this.fetchedData.to) {
+    const eta = this.createEtaSection(station.eta);
+    if (station.to) {
       var to = this.createInfoSection(
         "lock-open",
-        this.fetchedData.to.available,
-        this.fetchedData.to.total,
-        this.fetchedData.to.name
+        station.to.available,
+        station.to.total,
+        station.to.name
       );
     }
 
@@ -83,17 +85,16 @@ Module.register("MMM-Bysykkel", {
     wrapper.appendChild(bottom);
   },
 
-  displaySingleStation: function(wrapper) {
-
+  addSingleStationRow: function (station, wrapper) {
     // Bottom section with from, eta and to
     const bottom = document.createElement("div");
     bottom.className = "bottom singleStation";
 
     const from = this.createInfoSection(
       "bike",
-      this.fetchedData.from.available,
-      this.fetchedData.from.total,
-      this.config.displaySingleStationName ? this.fetchedData.from.name : null
+      station.from.available,
+      station.from.total,
+      this.config.displaySingleStationName ? station.from.name : null
     );
 
     bottom.appendChild(from);
