@@ -4,9 +4,9 @@ Module.register("MMM-Bysykkel", {
     clientIdentifier: "magicmirror-module-bysykkel", // Client identifier for the module. (Default "magicmirror-module-bysykkel")
     googleMapsApiKey: "", // Google Maps API Key for calculating the time between the city bike stops. (Default empty string)
     city: "bergen", // What city we're biking in. (Default "bergen")
-    fromStationId: 3, // Desired starting station identifier; used to tell which station we're starting from.
-    toStationId: 5, // Desired end station identifier; used to tell which station we're heading towards.
-    displaySingleStationName: false // Whether to display the station name if only from station is specified.
+    stations: [{ from: 3, to: 5 }], // List of desited stations with their respective starting and end identifiers. The stations are shown in order.
+    displaySingleStationName: false, // Whether to display the station name if only from station is specified.
+    showLogo: true // Whether to display the Bysykkel-logo
   },
 
   getStyles: function () {
@@ -30,11 +30,22 @@ Module.register("MMM-Bysykkel", {
     }, this.config.updateInterval);
   },
 
+  addTopLogo: function (wrapper) {
+    if (!this.config.showLogo) return;
+    const top = document.createElement("div");
+    top.className = "top";
+    const logo = document.createElement("img");
+    logo.src = this.getImage("bysykkel");
+    top.appendChild(logo);
+    wrapper.appendChild(top);
+  },
+
   getDom: function () {
     const wrapper = document.createElement("div");
     wrapper.className = "wrapper";
 
     if (this.fetchedData) {
+      this.addTopLogo(wrapper);
       this.fetchedData.stations.forEach((station) => {
         if (station.to) {
           this.addFromToRow(station, wrapper);
@@ -47,18 +58,7 @@ Module.register("MMM-Bysykkel", {
     }
     return wrapper;
   },
-
   addFromToRow: function (station, wrapper) {
-    // Top section w/logo
-    const top = document.createElement("div");
-    top.className = "top";
-
-    const logo = document.createElement("img");
-    logo.src = this.getImage("bysykkel"); // TODO: Make it choose the correct img
-    top.appendChild(logo);
-
-    wrapper.appendChild(top);
-
     // Bottom section with from, eta and to
     const bottom = document.createElement("div");
     bottom.className = "bottom";
